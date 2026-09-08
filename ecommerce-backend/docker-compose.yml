@@ -1,0 +1,122 @@
+version: "3.9"
+
+services:
+
+  # ---------- Bancos de dados isolados por serviço ----------
+
+  catalog-db:
+    image: postgres:16-alpine
+    container_name: catalog-db
+    environment:
+      POSTGRES_DB: catalog_db
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+    ports:
+      - "5433:5432"
+    volumes:
+      - catalog_data:/var/lib/postgresql/data
+      - ./docker/init-db/init-catalog.sql:/docker-entrypoint-initdb.d/init-catalog.sql
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  order-db:
+    image: postgres:16-alpine
+    container_name: order-db
+    environment:
+      POSTGRES_DB: order_db
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+    ports:
+      - "5434:5432"
+    volumes:
+      - order_data:/var/lib/postgresql/data
+      - ./docker/init-db/init-order.sql:/docker-entrypoint-initdb.d/init-order.sql
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  inventory-db:
+    image: postgres:16-alpine
+    container_name: inventory-db
+    environment:
+      POSTGRES_DB: inventory_db
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+    ports:
+      - "5435:5432"
+    volumes:
+      - inventory_data:/var/lib/postgresql/data
+      - ./docker/init-db/init-inventory.sql:/docker-entrypoint-initdb.d/init-inventory.sql
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  # ---------- Mensageria ----------
+
+  rabbitmq:
+    image: rabbitmq:3.13-management-alpine
+    container_name: rabbitmq
+    ports:
+      - "5672:5672"    # protocolo AMQP (usado pelas aplicações)
+      - "15672:15672"  # UI de gerenciamento -> http://localhost:15672 (guest/guest)
+    healthcheck:
+      test: ["CMD", "rabbitmq-diagnostics", "check_port_connectivity"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # ---------- Microsserviços ----------
+  # Comentados por padrão: durante o aprendizado, é mais didático rodar os
+  # 3 serviços via IDE/`mvn spring-boot:run` para ver logs e reiniciar rápido.
+  # Descomente quando quiser rodar tudo containerizado (ex: para simular "produção").
+
+  # product-service:
+  #   build: ./product-service
+  #   container_name: product-service
+  #   ports:
+  #     - "8081:8080"
+  #   environment:
+  #     SPRING_DATASOURCE_URL: jdbc:postgresql://catalog-db:5432/catalog_db
+  #   depends_on:
+  #     catalog-db:
+  #       condition: service_healthy
+
+  # order-service:
+  #   build: ./order-service
+  #   container_name: order-service
+  #   ports:
+  #     - "8082:8080"
+  #   environment:
+  #     SPRING_DATASOURCE_URL: jdbc:postgresql://order-db:5432/order_db
+  #     SPRING_RABBITMQ_HOST: rabbitmq
+  #   depends_on:
+  #     order-db:
+  #       condition: service_healthy
+  #     rabbitmq:
+  #       condition: service_healthy
+
+  # inventory-service:
+  #   build: ./inventory-service
+  #   container_name: inventory-service
+  #   ports:
+  #     - "8083:8080"
+  #   environment:
+  #     SPRING_DATASOURCE_URL: jdbc:postgresql://inventory-db:5432/inventory_db
+  #     SPRING_RABBITMQ_HOST: rabbitmq
+  #   depends_on:
+  #     inventory-db:
+  #       condition: service_healthy
+  #     rabbitmq:
+  #       condition: service_healthy
+
+volumes:
+  catalog_data:
+  order_data:
+  inventory_data:

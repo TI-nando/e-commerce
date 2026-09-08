@@ -1,0 +1,64 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  html, body {
+    @apply h-full;
+  }
+  body {
+    @apply bg-base-950 text-ink-100 font-body antialiased;
+  }
+  h1, h2, h3, h4 {
+    @apply font-display;
+  }
+  /* Foco visível para acessibilidade de teclado — não removemos o outline,
+     apenas o estilizamos para combinar com a paleta. */
+  :focus-visible {
+    @apply outline outline-2 outline-offset-2 outline-accent;
+  }
+}
+
+@layer components {
+  .card {
+    @apply bg-base-800 border border-base-700 rounded-xl;
+  }
+
+  .btn-primary {
+    @apply inline-flex items-center justify-center gap-2 rounded-lg bg-accent
+           px-4 py-2.5 text-sm font-medium text-base-950
+           transition-colors hover:bg-accent-glow
+           disabled:cursor-not-allowed disabled:bg-base-600 disabled:text-ink-500;
+  }
+
+  .btn-secondary {
+    @apply inline-flex items-center justify-center gap-2 rounded-lg border border-base-600
+           bg-transparent px-4 py-2.5 text-sm font-medium text-ink-100
+           transition-colors hover:border-accent hover:text-accent;
+  }
+
+  .field-label {
+    @apply mb-1.5 block text-xs font-medium uppercase tracking-wide text-ink-500;
+  }
+
+  .field-input {
+    @apply w-full rounded-lg border border-base-600 bg-base-900 px-3 py-2.5 text-sm text-ink-100
+           placeholder:text-ink-500 focus:border-accent focus:outline-none;
+  }
+
+  .field-error {
+    @apply mt-1 text-xs text-signal-error;
+  }
+
+  .badge {
+    @apply inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-xs font-medium;
+  }
+
+  .badge-pending {
+    @apply bg-signal-pending/10 text-signal-pending;
+  }
+
+  .badge-success {
+    @apply bg-signal-success/10 text-signal-success;
+  }
+}
