@@ -1,5 +1,4 @@
 package com.ecommerce.product.controller;
-
 import com.ecommerce.product.model.Product;
 import com.ecommerce.product.repository.ProductRepository;
 import org.springframework.http.HttpStatus;
@@ -8,10 +7,6 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
-/**
- * CRUD simples de produtos. Sem validações profundas de negócio de propósito —
- * este é o ponto de partida para você evoluir (Bean Validation, DTOs, mapeamento, etc).
- */
 @RestController
 @RequestMapping("/api/products")
 public class ProductController {
@@ -38,6 +33,20 @@ public class ProductController {
     @ResponseStatus(HttpStatus.CREATED)
     public Product create(@RequestBody Product product) {
         return productRepository.save(product);
+    }
+
+    @PutMapping("/{id}")
+    public ResponseEntity<Product> update(@PathVariable Long id, @RequestBody Product payload) {
+        return productRepository.findById(id)
+                .map(existing -> {
+                    existing.setName(payload.getName());
+                    existing.setDescription(payload.getDescription());
+                    existing.setPrice(payload.getPrice());
+                    Product updated = productRepository.save(existing);
+
+                    return ResponseEntity.ok(updated);
+                })
+                .orElse(ResponseEntity.notFound().build());
     }
 
     @DeleteMapping("/{id}")
