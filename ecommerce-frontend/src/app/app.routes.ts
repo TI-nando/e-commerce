@@ -1,10 +1,5 @@
 import { Routes } from '@angular/router';
 
-/**
- * Ambas as rotas usam loadComponent (lazy-loading a nível de rota).
- * Cada feature só é baixada pelo navegador quando o usuário navega até ela,
- * o que mantém o bundle inicial pequeno mesmo se o projeto crescer.
- */
 export const routes: Routes = [
   {
     path: '',

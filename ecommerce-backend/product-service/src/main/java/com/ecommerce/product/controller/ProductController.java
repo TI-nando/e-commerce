@@ -43,7 +43,6 @@ public class ProductController {
                     existing.setDescription(payload.getDescription());
                     existing.setPrice(payload.getPrice());
                     Product updated = productRepository.save(existing);
-
                     return ResponseEntity.ok(updated);
                 })
                 .orElse(ResponseEntity.notFound().build());
